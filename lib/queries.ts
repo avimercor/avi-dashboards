@@ -70,6 +70,9 @@ export interface CriterionRow {
   criteria_explanation: string | null;
   grade_rationale: string | null;
   is_primary_objective: boolean | null;
+  criteria_type: string | null;
+  gate: string | null;
+  weight: number | null;
   verifier_updated_at: string | null;
   ever_passed_in_chain: boolean;
   passed_trajectory_ids: string[];

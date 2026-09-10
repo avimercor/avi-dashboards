@@ -55,7 +55,16 @@ export default async function DomainPage({ params }: { params: Promise<{ worldId
               <td className="truncate px-2 py-2 text-left">
                 <Link href={`/tasks/${t.task_id}`} className="text-blue-700 hover:underline">
                   {t.task_name}
-                </Link>
+                </Link>{" "}
+                <a
+                  href={`https://studio.mercor.com/admin/tasks/${t.task_id}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  title="Open task in Studio"
+                  className="text-neutral-400 hover:text-neutral-600"
+                >
+                  ↗
+                </a>
               </td>
               <td className="px-2 py-2 text-left">{statusBadge(t.status)}</td>
               <td className="px-2 py-2 text-right">{scorePct(t.highest_golden_score)}</td>

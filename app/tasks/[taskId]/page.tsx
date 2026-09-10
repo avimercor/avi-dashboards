@@ -17,7 +17,17 @@ export default async function TaskPage({ params }: { params: Promise<{ taskId: s
         ← {task.world_name}
       </Link>
 
-      <h1 className="mt-2 text-2xl font-semibold">{task.task_name}</h1>
+      <div className="mt-2 flex items-center gap-2">
+        <h1 className="text-2xl font-semibold">{task.task_name}</h1>
+        <a
+          href={`https://studio.mercor.com/admin/tasks/${task.task_id}`}
+          target="_blank"
+          rel="noreferrer"
+          className="text-sm text-blue-700 hover:underline"
+        >
+          open in Studio ↗
+        </a>
+      </div>
 
       <div className="mt-3 flex flex-wrap gap-2 text-sm">
         <span className="rounded bg-neutral-100 px-2 py-1" title={statusInfo(task.status).description}>

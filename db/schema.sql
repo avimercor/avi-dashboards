@@ -41,6 +41,9 @@ CREATE TABLE criteria (
   criteria_explanation     TEXT,
   grade_rationale          TEXT,       -- the grader's own evidence for the fail (not an expert field)
   is_primary_objective     BOOLEAN,
+  criteria_type            TEXT,       -- e.g. "Expert Assessment" | "Objective Compliance"
+  gate                     TEXT,       -- e.g. "Gate: Critical Value" | "Gate: Missing Scope" | "Gate: Ethical / Safety Violation" | null
+  weight                   NUMERIC,
   verifier_updated_at      TIMESTAMPTZ,        -- for rubric_stale, per-criterion
   ever_passed_in_chain     BOOLEAN NOT NULL DEFAULT FALSE,
   passed_trajectory_ids    TEXT[] NOT NULL DEFAULT '{}',

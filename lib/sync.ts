@@ -5,9 +5,12 @@ import {
   getJudgeGradesForGradingRun,
   getVerifiersForTask,
   querierUnstructured,
+  VERIFIER_CUSTOM_FIELD_TYPE,
+  VERIFIER_CUSTOM_FIELD_GATE,
   type Trajectory,
   type GradingRun,
   type JudgeGrade,
+  type Verifier,
 } from "./studio";
 import { WORLDS, PARENT_TASK_STATUS_ID } from "./constants";
 
@@ -120,6 +123,9 @@ export interface TaskSyncResult {
     grade_rationale: string | null;
     is_primary_objective: boolean | null;
     verifier_updated_at: string | null;
+    criteria_type: string | null;
+    gate: string | null;
+    weight: number | null;
     ever_passed_in_chain: boolean;
     passed_trajectory_ids: string[];
     passed_grading_run_count: number;
@@ -210,14 +216,28 @@ export async function syncOneTask(taskId: string): Promise<TaskSyncResult> {
       }
     }
 
-    let verifiers: { verifier_id: string; updated_at: string }[] = [];
+    let verifiers: Verifier[] = [];
     try {
       verifiers = await getVerifiersForTask(taskId);
     } catch {
-      // staleness check degrades gracefully to "unknown = not stale" if verifiers can't be fetched
+      // staleness/rubric-field lookups degrade gracefully to "unknown" if verifiers can't be fetched
     }
     const verifierUpdatedAt = new Map(verifiers.map((v) => [v.verifier_id, v.updated_at]));
     const rubricStale = verifiers.some((v) => v.updated_at > winningRun.created_at);
+    const verifierRubricFields = new Map(
+      verifiers.map((v) => {
+        const cf = v.verifier_custom_field_values ?? {};
+        const weightRaw = v.verifier_values?.numerical_weight;
+        return [
+          v.verifier_id,
+          {
+            criteria_type: (cf[VERIFIER_CUSTOM_FIELD_TYPE] as string) ?? null,
+            gate: (cf[VERIFIER_CUSTOM_FIELD_GATE] as string) ?? null,
+            weight: weightRaw != null ? Number(weightRaw) : null,
+          },
+        ];
+      })
+    );
 
     let taskUpdatedAt: string | null = null;
     try {
@@ -250,6 +270,9 @@ export async function syncOneTask(taskId: string): Promise<TaskSyncResult> {
           grade_rationale: f.verifier_result_values?.grade_rationale ?? null,
           is_primary_objective: f.verifier_values?.is_primary_objective ?? null,
           verifier_updated_at: verifierUpdatedAt.get(f.verifier_id) ?? null,
+          criteria_type: verifierRubricFields.get(f.verifier_id)?.criteria_type ?? null,
+          gate: verifierRubricFields.get(f.verifier_id)?.gate ?? null,
+          weight: verifierRubricFields.get(f.verifier_id)?.weight ?? null,
           ever_passed_in_chain: (info?.count ?? 0) > 0,
           passed_trajectory_ids: info ? Array.from(info.trajectoryIds) : [],
           passed_grading_run_count: info?.count ?? 0,
@@ -345,8 +368,8 @@ export async function runFullSync(opts?: { concurrency?: number; worldIds?: stri
       );
       for (const c of r.criteria) {
         await client.query(
-          `INSERT INTO criteria (task_id, verifier_id, verifier_index, criterion_text, criteria_explanation, grade_rationale, is_primary_objective, verifier_updated_at, ever_passed_in_chain, passed_trajectory_ids, passed_grading_run_count)
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+          `INSERT INTO criteria (task_id, verifier_id, verifier_index, criterion_text, criteria_explanation, grade_rationale, is_primary_objective, criteria_type, gate, weight, verifier_updated_at, ever_passed_in_chain, passed_trajectory_ids, passed_grading_run_count)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
            ON CONFLICT (task_id, verifier_id) DO NOTHING`,
           [
             r.task_id,
@@ -356,6 +379,9 @@ export async function runFullSync(opts?: { concurrency?: number; worldIds?: stri
             c.criteria_explanation,
             c.grade_rationale,
             c.is_primary_objective,
+            c.criteria_type,
+            c.gate,
+            c.weight,
             c.verifier_updated_at,
             c.ever_passed_in_chain,
             c.passed_trajectory_ids,

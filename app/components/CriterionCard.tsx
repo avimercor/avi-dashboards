@@ -59,9 +59,17 @@ export function CriterionCard({ taskId, criterion }: { taskId: string; criterion
             {criterion.criterion_text ?? "(no criterion text)"}
           </p>
         </div>
-        {criterion.is_primary_objective && (
-          <span className="shrink-0 rounded bg-purple-100 px-1.5 py-0.5 text-xs text-purple-800">primary objective</span>
-        )}
+        <div className="flex shrink-0 flex-col items-end gap-1">
+          {criterion.is_primary_objective && (
+            <span className="rounded bg-purple-100 px-1.5 py-0.5 text-xs text-purple-800">primary objective</span>
+          )}
+          {criterion.gate && <span className="rounded bg-red-100 px-1.5 py-0.5 text-xs text-red-800">{criterion.gate}</span>}
+        </div>
+      </div>
+
+      <div className="mb-2 flex flex-wrap gap-2 text-xs text-neutral-500">
+        {criterion.criteria_type && <span>Type: {criterion.criteria_type}</span>}
+        {criterion.weight != null && <span>Weight: {criterion.weight}</span>}
       </div>
 
       {criterion.criteria_explanation && (
@@ -79,7 +87,7 @@ export function CriterionCard({ taskId, criterion }: { taskId: string; criterion
       <div className="mb-3 flex flex-wrap items-center gap-2 text-xs">
         {criterion.ever_passed_in_chain ? (
           <span className="flex flex-wrap items-center gap-1 rounded bg-blue-100 px-1.5 py-0.5 text-blue-800">
-            passed in {criterion.passed_grading_run_count} other run(s) across:
+            passed in {criterion.passed_grading_run_count} other run(s) within this golden trajectory chain, across:
             {criterion.passed_trajectory_ids.map((tid, i) => (
               <span key={tid}>
                 {i > 0 && ", "}

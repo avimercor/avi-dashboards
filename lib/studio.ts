@@ -62,10 +62,18 @@ export interface JudgeGrade {
   };
 }
 
+// Custom field ids are stable across worlds (confirmed 2026-09-10 on two
+// different domains) — they come from one shared SSOT rubric template, not
+// per-world config. If a future world uses a different template these will
+// just come back null rather than throw.
+export const VERIFIER_CUSTOM_FIELD_TYPE = "field_c1241558f8194176a42ea850ade0ea81"; // "Expert Assessment" | "Objective Compliance"
+export const VERIFIER_CUSTOM_FIELD_GATE = "field_c58fa22291de475781a7e9473f2ef0d7"; // "Gate: Critical Value" | "Gate: Missing Scope" | "Gate: Ethical / Safety Violation" | absent
+
 export interface Verifier {
   verifier_id: string;
   task_id: string | null;
   verifier_values: Record<string, unknown>;
+  verifier_custom_field_values: Record<string, unknown>;
   updated_at: string;
   archived_at: string | null;
 }
