@@ -50,23 +50,49 @@ export function CriterionCard({ taskId, criterion }: { taskId: string; criterion
   return (
     <div className="rounded border p-4">
       <div className="mb-2 flex items-start justify-between gap-4">
-        <p className="font-medium">{criterion.criterion_text ?? "(no criterion text)"}</p>
+        <div>
+          {criterion.verifier_index != null && (
+            <p className="mb-1 text-xs font-medium text-neutral-400">Rubric index: {criterion.verifier_index}</p>
+          )}
+          <p className="font-medium">
+            <span className="text-neutral-500">Criteria Text: </span>
+            {criterion.criterion_text ?? "(no criterion text)"}
+          </p>
+        </div>
         {criterion.is_primary_objective && (
           <span className="shrink-0 rounded bg-purple-100 px-1.5 py-0.5 text-xs text-purple-800">primary objective</span>
         )}
       </div>
 
-      {criterion.criteria_explanation && <p className="mb-2 text-sm text-neutral-500">{criterion.criteria_explanation}</p>}
+      {criterion.criteria_explanation && (
+        <p className="mb-2 text-sm text-neutral-500">
+          <span className="font-medium">Criteria Description: </span>
+          {criterion.criteria_explanation}
+        </p>
+      )}
 
       <details className="mb-3 text-sm">
         <summary className="cursor-pointer text-neutral-600">Grader&apos;s evidence for the fail</summary>
         <p className="mt-1 whitespace-pre-wrap text-neutral-600">{criterion.grade_rationale ?? "(none provided)"}</p>
       </details>
 
-      <div className="mb-3 flex flex-wrap gap-2 text-xs">
+      <div className="mb-3 flex flex-wrap items-center gap-2 text-xs">
         {criterion.ever_passed_in_chain ? (
-          <span className="rounded bg-blue-100 px-1.5 py-0.5 text-blue-800">
-            passed in {criterion.passed_grading_run_count} other run(s) across {criterion.passed_trajectory_ids.length} trajectory(ies)
+          <span className="flex flex-wrap items-center gap-1 rounded bg-blue-100 px-1.5 py-0.5 text-blue-800">
+            passed in {criterion.passed_grading_run_count} other run(s) across:
+            {criterion.passed_trajectory_ids.map((tid, i) => (
+              <span key={tid}>
+                {i > 0 && ", "}
+                <a
+                  href={`https://studio.mercor.com/admin/tasks/${taskId}/trajectory/${tid}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline hover:text-blue-900"
+                >
+                  {tid}
+                </a>
+              </span>
+            ))}
           </span>
         ) : (
           <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-neutral-600">never passed elsewhere in this chain</span>
