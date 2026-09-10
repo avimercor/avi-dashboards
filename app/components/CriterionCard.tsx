@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { CriterionRow } from "@/lib/queries";
+import { gateDescription } from "@/lib/statusLabels";
 
 const VERDICTS: { value: string; label: string }[] = [
   { value: "solvable_model_missed", label: "Solvable — model missed it" },
@@ -63,7 +64,11 @@ export function CriterionCard({ taskId, criterion }: { taskId: string; criterion
           {criterion.is_primary_objective && (
             <span className="rounded bg-purple-100 px-1.5 py-0.5 text-xs text-purple-800">primary objective</span>
           )}
-          {criterion.gate && <span className="rounded bg-red-100 px-1.5 py-0.5 text-xs text-red-800">{criterion.gate}</span>}
+          {criterion.gate && (
+            <span title={gateDescription(criterion.gate)} className="rounded bg-red-100 px-1.5 py-0.5 text-xs text-red-800">
+              {criterion.gate}
+            </span>
+          )}
         </div>
       </div>
 
