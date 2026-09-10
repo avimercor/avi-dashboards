@@ -73,15 +73,25 @@ function findChains(trajectories: Trajectory[]): { chains: Chain[]; byId: Map<st
   return { chains, byId };
 }
 
-function pickWinningChain(chains: Chain[], byId: Map<string, Trajectory>): Chain | null {
-  if (chains.length === 0) return null;
-  return chains.reduce((a, b) => (byId.get(a.root)!.created_at >= byId.get(b.root)!.created_at ? a : b));
-}
-
-function pickWinner(members: string[], byId: Map<string, Trajectory>): string | null {
-  const scored = members.filter((m) => byId.get(m)?.final_score != null);
-  if (scored.length === 0) return null;
-  return scored.reduce((a, b) => (byId.get(a)!.final_score! >= byId.get(b)!.final_score! ? a : b));
+// A task can have many separate golden chains (11+ seen in practice — remixed
+// at different times, some abandoned). The winner is the single highest
+// final_score trajectory across ALL of them, not "the best trajectory within
+// whichever chain happens to be rooted most recently" — a task can easily
+// have its best-ever run sitting in an older chain while a later, worse chain
+// gets rooted afterward. (Caught 2026-09-10: a task's most-recent chain
+// topped out at 0.45 while an older chain had a 0.98 in it.) The winner's own
+// chain is still what matters for the cross-run pass check and
+// chain_root_created_at below.
+function pickWinningChain(chains: Chain[], byId: Map<string, Trajectory>): { chain: Chain; winner: string } | null {
+  let best: { chain: Chain; winner: string; score: number } | null = null;
+  for (const chain of chains) {
+    for (const m of chain.members) {
+      const score = byId.get(m)?.final_score;
+      if (score == null) continue;
+      if (!best || score > best.score) best = { chain, winner: m, score };
+    }
+  }
+  return best ? { chain: best.chain, winner: best.winner } : null;
 }
 
 function pickWinningGradingRun(runs: GradingRun[]): GradingRun | null {
@@ -160,15 +170,12 @@ export async function syncOneTask(taskId: string): Promise<TaskSyncResult> {
       return { ...base, status: "no_golden_chain", notes: "no trajectories at all for this task", criteria: [] };
     }
     const { chains, byId } = findChains(trajectories);
-    const chosen = pickWinningChain(chains, byId);
-    if (!chosen) {
-      return { ...base, status: "no_golden_chain", notes: `${trajectories.length} trajectories but no golden (remixed) chain`, criteria: [] };
+    const picked = pickWinningChain(chains, byId);
+    if (!picked) {
+      return { ...base, status: "no_golden_chain", notes: `${trajectories.length} trajectories, ${chains.length} golden chain(s), none with a scored member`, criteria: [] };
     }
-    const winner = pickWinner(chosen.members, byId);
+    const { chain: chosen, winner } = picked;
     const chainRootCreatedAt = byId.get(chosen.root)!.created_at;
-    if (!winner) {
-      return { ...base, status: "no_golden_chain", chain_root_created_at: chainRootCreatedAt, notes: "chain found but no member has a final_score", criteria: [] };
-    }
 
     const gradingRuns = await getGradingRunsForTrajectory(winner);
     const winningRun = pickWinningGradingRun(gradingRuns);
