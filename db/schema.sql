@@ -18,6 +18,7 @@ CREATE TABLE tasks (
   task_id                  TEXT PRIMARY KEY,
   world_id                 TEXT NOT NULL REFERENCES domains(world_id),
   task_name                TEXT NOT NULL,
+  task_phase                TEXT,          -- Pilot | Phase 1 | Phase 2, from the task's Studio tag (see PHASE_TAG_IDS)
   status                   TEXT NOT NULL, -- ok | no_golden_chain | no_completed_grading_run | error
   highest_golden_score     DOUBLE PRECISION,
   winning_trajectory_id    TEXT,

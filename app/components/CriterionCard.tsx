@@ -49,26 +49,28 @@ export function CriterionCard({ taskId, criterion }: { taskId: string; criterion
           {criterion.verifier_index != null && (
             <p className="mb-1 text-xs font-medium text-neutral-400">Rubric index: {criterion.verifier_index}</p>
           )}
-          <p className="font-medium">
-            <span className="text-neutral-500">Criteria Text: </span>
+          <p>
+            <span className="font-bold">Criteria Text: </span>
             {criterion.criterion_text ?? "(no criterion text)"}
           </p>
         </div>
-        <div className="flex shrink-0 flex-col items-end gap-1">
+        <div className="flex shrink-0 flex-col items-end gap-1 text-right text-xs">
           {criterion.is_primary_objective && (
-            <span className="rounded bg-purple-100 px-1.5 py-0.5 text-xs text-purple-800">primary objective</span>
+            <span className="rounded bg-purple-100 px-1.5 py-0.5 text-purple-800">primary objective</span>
           )}
           {criterion.gate && (
-            <span title={gateDescription(criterion.gate)} className="rounded bg-red-100 px-1.5 py-0.5 text-xs text-red-800">
+            <span title={gateDescription(criterion.gate)} className="rounded bg-red-100 px-1.5 py-0.5 text-red-800">
               {criterion.gate}
             </span>
           )}
+          {criterion.criteria_type && (
+            <span className="text-neutral-500">
+              <span className="font-bold">Criteria Type: </span>
+              {criterion.criteria_type}
+            </span>
+          )}
+          {criterion.weight != null && <span className="text-neutral-500">Weight: {criterion.weight}</span>}
         </div>
-      </div>
-
-      <div className="mb-2 flex flex-wrap gap-2 text-xs text-neutral-500">
-        {criterion.criteria_type && <span>Type: {criterion.criteria_type}</span>}
-        {criterion.weight != null && <span>Weight: {criterion.weight}</span>}
       </div>
 
       {criterion.criteria_explanation && (

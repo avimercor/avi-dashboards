@@ -47,8 +47,18 @@ export const WORLDS: { world_id: string; world_name: string; phase: string }[] =
   { world_id: "world_9a9719f20a0e4da7a0fb3673df76ea9e", world_name: "Regulatory Compliance & Risk Management", phase: "Phase 2" },
   { world_id: "world_67e6ea90171b4c258396212c81d0851d", world_name: "Special Education", phase: "Phase 2" },
   { world_id: "world_b1767e271ac54ef7a1e723c4a426d8f7", world_name: "Pharmaceuticals & Biotechnology", phase: "Phase 2" },
-  { world_id: "world_287dc5cd1d3c445d971625e7a8db6dc8", world_name: "Biotechnology Research (Genomics, Proteomics, Molecular Biology)", phase: "Phase 2" },
+  { world_id: "world_287dc5cd1d3c445d971625e7a8db6dc8", world_name: "Biotechnology Research", phase: "Phase 2" },
 ];
+
+// Studio task tag_id -> task-level phase label. This is a finer-grained,
+// per-task signal than the domain-level `phase` above (a "Pilot & Phase 1"
+// domain can contain a mix of Pilot and Phase 1 tasks). Resolved from the
+// live tag catalogue (GET /campaigns/tags) on 2026-09-10 — no "Phase 2" tag
+// exists yet; add its tag_id here once Mercor creates one.
+export const PHASE_TAG_IDS: Record<string, string> = {
+  "0006d34d-6e86-4908-af84-3dfc2f1570d1": "Pilot", // "[No Ambiguity] Pilot Phase Original Task"
+  "5b59c463-0edd-4d42-9f5a-f41a51034edd": "Phase 1", // "[No Ambiguity] Phase 1 Original Task"
+};
 
 // Studio status_id for the "Original Task - No User Sim" world status — the
 // parent-task marker. Confirmed identical across all sampled worlds (they're

@@ -12,7 +12,7 @@ import {
   type JudgeGrade,
   type Verifier,
 } from "./studio";
-import { WORLDS, PARENT_TASK_STATUS_ID } from "./constants";
+import { WORLDS, PARENT_TASK_STATUS_ID, PHASE_TAG_IDS } from "./constants";
 
 interface Chain {
   root: string;
@@ -297,15 +297,21 @@ async function pMap<T, R>(items: T[], concurrency: number, fn: (item: T, index: 
   return results;
 }
 
-export async function fetchParentTaskIds(worldIds: string[]): Promise<{ task_id: string; task_name: string; world_id: string }[]> {
+export async function fetchParentTaskIds(
+  worldIds: string[]
+): Promise<{ task_id: string; task_name: string; world_id: string; task_phase: string | null }[]> {
   const inList = worldIds.map((w) => `'${w}'`).join(",");
-  const out: { task_id: string; task_name: string; world_id: string }[] = [];
+  const out: { task_id: string; task_name: string; world_id: string; task_phase: string | null }[] = [];
   let cursor = "";
   for (;;) {
-    const query = `SELECT task_id, task_name, world_id FROM tasks WHERE world_id IN (${inList}) AND task_status_id = '${PARENT_TASK_STATUS_ID}' AND task_id > '${cursor}' ORDER BY task_id ASC LIMIT 500`;
+    const query = `SELECT task_id, task_name, world_id, task_tag_ids FROM tasks WHERE world_id IN (${inList}) AND task_status_id = '${PARENT_TASK_STATUS_ID}' AND task_id > '${cursor}' ORDER BY task_id ASC LIMIT 500`;
     const rows = await querierUnstructured(query);
     if (rows.length === 0) break;
-    for (const r of rows) out.push(r as { task_id: string; task_name: string; world_id: string });
+    for (const r of rows) {
+      const tagIds = (r.task_tag_ids as string[] | null) ?? [];
+      const phase = tagIds.map((id) => PHASE_TAG_IDS[id]).find((p) => p != null) ?? null;
+      out.push({ task_id: r.task_id as string, task_name: r.task_name as string, world_id: r.world_id as string, task_phase: phase });
+    }
     cursor = rows[rows.length - 1].task_id as string;
     if (rows.length < 500) break;
   }
@@ -348,12 +354,13 @@ export async function runFullSync(opts?: { concurrency?: number; worldIds?: stri
     for (const r of results) {
       statusCounts[r.status] = (statusCounts[r.status] ?? 0) + 1;
       await client.query(
-        `INSERT INTO tasks (task_id, world_id, task_name, status, highest_golden_score, winning_trajectory_id, winning_grading_run_id, chain_root_created_at, criteria_failed, criteria_total, task_stale, rubric_stale, notes)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`,
+        `INSERT INTO tasks (task_id, world_id, task_name, task_phase, status, highest_golden_score, winning_trajectory_id, winning_grading_run_id, chain_root_created_at, criteria_failed, criteria_total, task_stale, rubric_stale, notes)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
         [
           r.task_id,
           r.world_id,
           r.task_name,
+          r.task_phase,
           r.status,
           r.highest_golden_score,
           r.winning_trajectory_id,

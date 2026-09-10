@@ -30,6 +30,7 @@ export default async function TaskPage({ params }: { params: Promise<{ taskId: s
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2 text-sm">
+        {task.task_phase && <span className="rounded bg-neutral-100 px-2 py-1">phase: <strong>{task.task_phase}</strong></span>}
         <span className="rounded bg-neutral-100 px-2 py-1" title={statusInfo(task.status).description}>
           status: <strong>{statusInfo(task.status).label}</strong>
         </span>

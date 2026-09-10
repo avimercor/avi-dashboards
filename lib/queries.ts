@@ -33,6 +33,7 @@ export interface TaskRow {
   task_id: string;
   task_name: string;
   world_id: string;
+  task_phase: string | null;
   status: string;
   highest_golden_score: number | null;
   criteria_failed: number | null;
@@ -48,7 +49,7 @@ export async function listTasksForDomain(worldId: string): Promise<TaskRow[]> {
   const { rows } = await pool.query(
     `
     SELECT
-      t.task_id, t.task_name, t.world_id, t.status, t.highest_golden_score,
+      t.task_id, t.task_name, t.world_id, t.task_phase, t.status, t.highest_golden_score,
       t.criteria_failed, t.criteria_total, t.task_stale, t.rubric_stale, t.last_synced_at,
       COUNT(er.verifier_id) AS reviewed_count
     FROM tasks t
@@ -88,6 +89,7 @@ export interface TaskDetail {
   task_name: string;
   world_id: string;
   world_name: string;
+  task_phase: string | null;
   status: string;
   highest_golden_score: number | null;
   winning_trajectory_id: string | null;

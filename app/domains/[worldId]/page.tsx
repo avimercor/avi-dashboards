@@ -40,13 +40,14 @@ export default async function DomainPage({ params }: { params: Promise<{ worldId
       <table className="w-full table-fixed text-sm">
         <thead>
           <tr className="border-b text-left text-neutral-500">
-            <th className="w-[26%] overflow-hidden px-2 py-2 text-left whitespace-nowrap">Task</th>
+            <th className="w-[23%] overflow-hidden px-2 py-2 text-left whitespace-nowrap">Task</th>
+            <th className="w-[8%] overflow-hidden px-2 py-2 text-left whitespace-nowrap">Phase</th>
             <th className="w-[9%] overflow-hidden px-2 py-2 text-left whitespace-nowrap">Status</th>
-            <th className="w-[9%] overflow-hidden px-2 py-2 text-right whitespace-nowrap">Score</th>
-            <th className="w-[13%] overflow-hidden px-2 py-2 text-right whitespace-nowrap">Total criteria</th>
-            <th className="w-[13%] overflow-hidden px-2 py-2 text-right whitespace-nowrap">Failing criteria</th>
-            <th className="w-[10%] overflow-hidden px-2 py-2 text-right whitespace-nowrap">Reviewed</th>
-            <th className="w-[20%] overflow-hidden px-2 py-2 text-left whitespace-nowrap">Flags</th>
+            <th className="w-[8%] overflow-hidden px-2 py-2 text-right whitespace-nowrap">Score</th>
+            <th className="w-[12%] overflow-hidden px-2 py-2 text-right whitespace-nowrap">Total criteria</th>
+            <th className="w-[12%] overflow-hidden px-2 py-2 text-right whitespace-nowrap">Failing criteria</th>
+            <th className="w-[9%] overflow-hidden px-2 py-2 text-right whitespace-nowrap">Reviewed</th>
+            <th className="w-[19%] overflow-hidden px-2 py-2 text-left whitespace-nowrap">Flags</th>
           </tr>
         </thead>
         <tbody>
@@ -66,6 +67,7 @@ export default async function DomainPage({ params }: { params: Promise<{ worldId
                   ↗
                 </a>
               </td>
+              <td className="truncate px-2 py-2 text-left">{t.task_phase ?? "—"}</td>
               <td className="px-2 py-2 text-left">{statusBadge(t.status)}</td>
               <td className="px-2 py-2 text-right">{scorePct(t.highest_golden_score)}</td>
               <td className="px-2 py-2 text-right">{t.criteria_total ?? "—"}</td>
