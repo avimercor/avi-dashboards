@@ -1,6 +1,6 @@
 import { getPool } from "@/lib/db";
 
-const VALID_VERDICTS = ["solvable_model_missed", "not_solvable_impossible", "needs_discussion"];
+const VALID_VERDICTS = ["solvable_model_missed", "not_solvable_impossible", "grading_issue", "needs_discussion"];
 
 export async function POST(request: Request) {
   const body = await request.json();

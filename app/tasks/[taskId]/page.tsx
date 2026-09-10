@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTaskDetail } from "@/lib/queries";
 import { CriterionCard } from "@/app/components/CriterionCard";
-import { statusInfo } from "@/lib/statusLabels";
+import { statusInfo, TASK_STALE_TOOLTIP, RUBRIC_STALE_TOOLTIP } from "@/lib/statusLabels";
 
 export const dynamic = "force-dynamic";
 
@@ -28,8 +28,16 @@ export default async function TaskPage({ params }: { params: Promise<{ taskId: s
         </span>
         <span className="rounded bg-neutral-100 px-2 py-1">total criteria: <strong>{task.criteria_total ?? "—"}</strong></span>
         <span className="rounded bg-neutral-100 px-2 py-1">failing criteria: <strong>{task.criteria_failed ?? "—"}</strong></span>
-        {task.task_stale && <span className="rounded bg-amber-100 px-2 py-1 text-amber-800">task edited since this grading run</span>}
-        {task.rubric_stale && <span className="rounded bg-amber-100 px-2 py-1 text-amber-800">rubric edited since this grading run</span>}
+        {task.task_stale && (
+          <span title={TASK_STALE_TOOLTIP} className="rounded bg-amber-100 px-2 py-1 text-amber-800">
+            task edited since this grading run
+          </span>
+        )}
+        {task.rubric_stale && (
+          <span title={RUBRIC_STALE_TOOLTIP} className="rounded bg-amber-100 px-2 py-1 text-amber-800">
+            rubric edited since this grading run
+          </span>
+        )}
       </div>
 
       {task.winning_trajectory_id && (

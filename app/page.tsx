@@ -30,26 +30,26 @@ export default async function HomePage() {
       <table className="w-full table-fixed text-sm">
         <thead>
           <tr className="border-b text-left text-neutral-500">
-            <th className="w-[55%] py-2 text-left">Domain</th>
-            <th className="w-[15%] py-2 text-right">Tasks synced</th>
-            <th className="w-[15%] py-2 text-right">Avg score</th>
-            <th className="w-[15%] py-2 text-right">Stale</th>
+            <th className="w-[52%] overflow-hidden px-2 py-2 text-left whitespace-nowrap">Domain</th>
+            <th className="w-[16%] overflow-hidden px-2 py-2 text-right whitespace-nowrap">Tasks synced</th>
+            <th className="w-[16%] overflow-hidden px-2 py-2 text-right whitespace-nowrap">Avg score</th>
+            <th className="w-[16%] overflow-hidden px-2 py-2 text-right whitespace-nowrap">Stale</th>
           </tr>
         </thead>
         <tbody>
           {domains.map((d) => (
             <tr key={d.world_id} className="border-b hover:bg-neutral-50">
-              <td className="truncate py-2 text-left">
+              <td className="truncate px-2 py-2 text-left">
                 <Link href={`/domains/${d.world_id}`} className="text-blue-700 hover:underline">
                   {d.world_name}
                 </Link>
                 {d.phase === "Phase 2" && <span className="ml-2 rounded bg-neutral-100 px-1.5 py-0.5 text-xs text-neutral-500">Phase 2</span>}
               </td>
-              <td className="py-2 text-right">
+              <td className="px-2 py-2 text-right">
                 {d.synced_task_count}/{d.task_count}
               </td>
-              <td className="py-2 text-right">{d.avg_score != null ? `${(Number(d.avg_score) * 100).toFixed(1)}%` : "—"}</td>
-              <td className="py-2 text-right">{Number(d.stale_count) > 0 ? <span className="text-amber-600">{d.stale_count}</span> : "—"}</td>
+              <td className="px-2 py-2 text-right">{d.avg_score != null ? `${(Number(d.avg_score) * 100).toFixed(1)}%` : "—"}</td>
+              <td className="px-2 py-2 text-right">{Number(d.stale_count) > 0 ? <span className="text-amber-600">{d.stale_count}</span> : "—"}</td>
             </tr>
           ))}
         </tbody>

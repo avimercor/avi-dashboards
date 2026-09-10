@@ -26,3 +26,8 @@ export const STATUS_INFO: Record<string, { label: string; description: string; c
 export function statusInfo(status: string) {
   return STATUS_INFO[status] ?? { label: status, description: status, className: "bg-neutral-100 text-neutral-600" };
 }
+
+export const TASK_STALE_TOOLTIP =
+  "The task itself (prompt, description, or other fields) was edited after this winning trajectory was graded — what's shown here may not reflect the current task.";
+export const RUBRIC_STALE_TOOLTIP =
+  "At least one rubric criterion on this task was edited after this winning trajectory was graded — the criteria shown may not reflect the current rubric.";

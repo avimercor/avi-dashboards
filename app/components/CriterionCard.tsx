@@ -6,6 +6,7 @@ import type { CriterionRow } from "@/lib/queries";
 const VERDICTS: { value: string; label: string }[] = [
   { value: "solvable_model_missed", label: "Solvable — model missed it" },
   { value: "not_solvable_impossible", label: "Not solvable — criterion is impossible" },
+  { value: "grading_issue", label: "Grading issue — the grader was wrong" },
   { value: "needs_discussion", label: "Needs discussion" },
 ];
 

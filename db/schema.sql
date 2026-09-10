@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS expert_rationales (
   task_id         TEXT NOT NULL,
   verifier_id     TEXT NOT NULL,
   expert_name     TEXT NOT NULL,
-  verdict         TEXT NOT NULL CHECK (verdict IN ('solvable_model_missed', 'not_solvable_impossible', 'needs_discussion')),
+  verdict         TEXT NOT NULL CHECK (verdict IN ('solvable_model_missed', 'not_solvable_impossible', 'grading_issue', 'needs_discussion')),
   rationale_text  TEXT NOT NULL,
   updated_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
   PRIMARY KEY (task_id, verifier_id)
