@@ -74,7 +74,7 @@ export interface CriterionRow {
   ever_passed_in_chain: boolean;
   passed_trajectory_ids: string[];
   passed_grading_run_count: number;
-  expert_email: string | null;
+  expert_name: string | null;
   verdict: string | null;
   rationale_text: string | null;
   rationale_updated_at: string | null;
@@ -110,7 +110,7 @@ export async function getTaskDetail(taskId: string): Promise<TaskDetail | null> 
 
   const { rows: criteriaRows } = await pool.query(
     `
-    SELECT c.*, er.expert_email, er.verdict, er.rationale_text, er.updated_at AS rationale_updated_at
+    SELECT c.*, er.expert_name, er.verdict, er.rationale_text, er.updated_at AS rationale_updated_at
     FROM criteria c
     LEFT JOIN expert_rationales er ON er.task_id = c.task_id AND er.verifier_id = c.verifier_id
     WHERE c.task_id = $1

@@ -9,13 +9,13 @@ const VERDICTS: { value: string; label: string }[] = [
   { value: "needs_discussion", label: "Needs discussion" },
 ];
 
-function getStoredEmail(): string {
+function getStoredName(): string {
   if (typeof window === "undefined") return "";
-  return window.localStorage.getItem("gtg_expert_email") ?? "";
+  return window.localStorage.getItem("gtg_expert_name") ?? "";
 }
 
 export function CriterionCard({ taskId, criterion }: { taskId: string; criterion: CriterionRow }) {
-  const [email, setEmail] = useState(getStoredEmail);
+  const [name, setName] = useState(getStoredName);
   const [verdict, setVerdict] = useState(criterion.verdict ?? "");
   const [rationale, setRationale] = useState(criterion.rationale_text ?? "");
   const [saving, setSaving] = useState(false);
@@ -23,18 +23,18 @@ export function CriterionCard({ taskId, criterion }: { taskId: string; criterion
   const [error, setError] = useState<string | null>(null);
 
   async function onSave() {
-    if (!email || !verdict) {
-      setError("Email and verdict are required.");
+    if (!name || !verdict || !rationale.trim()) {
+      setError("Name, verdict, and a why are all required.");
       return;
     }
     setSaving(true);
     setError(null);
     try {
-      window.localStorage.setItem("gtg_expert_email", email);
+      window.localStorage.setItem("gtg_expert_name", name);
       const res = await fetch("/api/rationale", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ task_id: taskId, verifier_id: criterion.verifier_id, expert_email: email, verdict, rationale_text: rationale }),
+        body: JSON.stringify({ task_id: taskId, verifier_id: criterion.verifier_id, expert_name: name, verdict, rationale_text: rationale }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "save failed");
@@ -80,10 +80,10 @@ export function CriterionCard({ taskId, criterion }: { taskId: string; criterion
       <div className="grid gap-2 border-t pt-3">
         <div className="flex gap-2">
           <input
-            type="email"
-            placeholder="you@mercor.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="text"
+            placeholder="Your name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             className="w-56 rounded border px-2 py-1 text-sm"
           />
           <select value={verdict} onChange={(e) => setVerdict(e.target.value)} className="rounded border px-2 py-1 text-sm">
@@ -96,11 +96,12 @@ export function CriterionCard({ taskId, criterion }: { taskId: string; criterion
           </select>
         </div>
         <textarea
-          placeholder="Why? (optional but recommended)"
+          placeholder="Why? (required)"
           value={rationale}
           onChange={(e) => setRationale(e.target.value)}
           className="rounded border px-2 py-1 text-sm"
           rows={2}
+          required
         />
         <div className="flex items-center gap-3">
           <button
