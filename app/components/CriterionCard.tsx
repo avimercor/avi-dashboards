@@ -11,13 +11,8 @@ const VERDICTS: { value: string; label: string }[] = [
   { value: "needs_discussion", label: "Needs discussion" },
 ];
 
-function getStoredName(): string {
-  if (typeof window === "undefined") return "";
-  return window.localStorage.getItem("gtg_expert_name") ?? "";
-}
-
 export function CriterionCard({ taskId, criterion }: { taskId: string; criterion: CriterionRow }) {
-  const [name, setName] = useState(getStoredName);
+  const [name, setName] = useState("");
   const [verdict, setVerdict] = useState(criterion.verdict ?? "");
   const [rationale, setRationale] = useState(criterion.rationale_text ?? "");
   const [saving, setSaving] = useState(false);
@@ -32,7 +27,6 @@ export function CriterionCard({ taskId, criterion }: { taskId: string; criterion
     setSaving(true);
     setError(null);
     try {
-      window.localStorage.setItem("gtg_expert_name", name);
       const res = await fetch("/api/rationale", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
