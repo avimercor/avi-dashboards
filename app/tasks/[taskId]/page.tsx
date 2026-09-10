@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTaskDetail } from "@/lib/queries";
 import { CriterionCard } from "@/app/components/CriterionCard";
+import { statusInfo } from "@/lib/statusLabels";
 
 export const dynamic = "force-dynamic";
 
@@ -19,12 +20,14 @@ export default async function TaskPage({ params }: { params: Promise<{ taskId: s
       <h1 className="mt-2 text-2xl font-semibold">{task.task_name}</h1>
 
       <div className="mt-3 flex flex-wrap gap-2 text-sm">
-        <span className="rounded bg-neutral-100 px-2 py-1">
-          score: <strong>{task.highest_golden_score != null ? Number(task.highest_golden_score).toFixed(3) : "—"}</strong>
+        <span className="rounded bg-neutral-100 px-2 py-1" title={statusInfo(task.status).description}>
+          status: <strong>{statusInfo(task.status).label}</strong>
         </span>
         <span className="rounded bg-neutral-100 px-2 py-1">
-          {task.criteria_failed}/{task.criteria_total} criteria failed
+          score: <strong>{task.highest_golden_score != null ? `${(Number(task.highest_golden_score) * 100).toFixed(1)}%` : "—"}</strong>
         </span>
+        <span className="rounded bg-neutral-100 px-2 py-1">total criteria: <strong>{task.criteria_total ?? "—"}</strong></span>
+        <span className="rounded bg-neutral-100 px-2 py-1">failing criteria: <strong>{task.criteria_failed ?? "—"}</strong></span>
         {task.task_stale && <span className="rounded bg-amber-100 px-2 py-1 text-amber-800">task edited since this grading run</span>}
         {task.rubric_stale && <span className="rounded bg-amber-100 px-2 py-1 text-amber-800">rubric edited since this grading run</span>}
       </div>
