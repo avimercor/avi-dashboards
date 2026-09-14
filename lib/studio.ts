@@ -97,6 +97,11 @@ export interface Verifier {
   task_id: string | null;
   verifier_values: Record<string, unknown>;
   verifier_custom_field_values: Record<string, unknown>;
+  // Raw creation-order value — NOT a display position. It has gaps wherever a
+  // verifier was deleted (seen: 9 gaps on one 92-verifier task) and earlier
+  // verifiers keep their original number, so it drifts further from the
+  // rubric's actual 1-based position the longer a task's rubric gets edited.
+  verifier_index: number;
   updated_at: string;
   archived_at: string | null;
 }

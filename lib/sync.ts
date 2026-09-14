@@ -226,6 +226,18 @@ export async function syncOneTask(taskId: string): Promise<TaskSyncResult> {
     }
     const verifierUpdatedAt = new Map(verifiers.map((v) => [v.verifier_id, v.updated_at]));
     const rubricStale = verifiers.some((v) => v.updated_at > winningRun.created_at);
+    // verifier_index is a raw creation-order value with gaps (deleted verifiers
+    // leave holes; survivors keep their original number) — NOT the 1-based
+    // position an expert sees in Studio's rubric view. Re-derive that position
+    // by ranking this task's current (non-archived) verifiers by verifier_index.
+    // Falls back to the raw index (old behavior) only if the verifier fetch
+    // itself failed above, so a display number still shows rather than nothing.
+    const verifierRubricPosition = new Map(
+      verifiers
+        .filter((v) => v.archived_at == null)
+        .sort((a, b) => a.verifier_index - b.verifier_index)
+        .map((v, i) => [v.verifier_id, i + 1])
+    );
     const verifierRubricFields = new Map(
       verifiers.map((v) => {
         const cf = v.verifier_custom_field_values ?? {};
@@ -270,7 +282,7 @@ export async function syncOneTask(taskId: string): Promise<TaskSyncResult> {
         const rubricFields = verifierRubricFields.get(f.verifier_id);
         return {
           verifier_id: f.verifier_id,
-          verifier_index: f.verifier_index,
+          verifier_index: verifierRubricPosition.get(f.verifier_id) ?? (verifiers.length === 0 ? f.verifier_index : null),
           criterion_text: f.verifier_values?.criteria ?? null,
           criteria_explanation: f.verifier_values?.criteria_explanation ?? rubricFields?.explanation_fallback ?? null,
           grade_rationale: f.verifier_result_values?.grade_rationale ?? null,
