@@ -5,8 +5,10 @@ import {
   getJudgeGradesForGradingRun,
   getVerifiersForTask,
   querierUnstructured,
-  VERIFIER_CUSTOM_FIELD_TYPE,
-  VERIFIER_CUSTOM_FIELD_GATE,
+  firstCustomField,
+  VERIFIER_CUSTOM_FIELD_TYPE_IDS,
+  VERIFIER_CUSTOM_FIELD_GATE_IDS,
+  VERIFIER_CUSTOM_FIELD_EXPLANATION_IDS,
   type Trajectory,
   type GradingRun,
   type JudgeGrade,
@@ -231,9 +233,12 @@ export async function syncOneTask(taskId: string): Promise<TaskSyncResult> {
         return [
           v.verifier_id,
           {
-            criteria_type: (cf[VERIFIER_CUSTOM_FIELD_TYPE] as string) ?? null,
-            gate: (cf[VERIFIER_CUSTOM_FIELD_GATE] as string) ?? null,
+            criteria_type: firstCustomField(cf, VERIFIER_CUSTOM_FIELD_TYPE_IDS),
+            gate: firstCustomField(cf, VERIFIER_CUSTOM_FIELD_GATE_IDS),
             weight: weightRaw != null ? Number(weightRaw) : null,
+            // Fallback text for criteria_explanation when the grading-run's own
+            // verifier_values snapshot didn't carry one (see studio.ts comment).
+            explanation_fallback: firstCustomField(cf, VERIFIER_CUSTOM_FIELD_EXPLANATION_IDS),
           },
         ];
       })
@@ -262,17 +267,18 @@ export async function syncOneTask(taskId: string): Promise<TaskSyncResult> {
       notes: `${chosen.members.length}-leg chain rooted ${chainRootCreatedAt}, winner scored ${byId.get(winner)!.final_score}, ${failing.length}/${judgeGrades.length} criteria failed`,
       criteria: failing.map((f) => {
         const info = passInfo.get(f.verifier_id);
+        const rubricFields = verifierRubricFields.get(f.verifier_id);
         return {
           verifier_id: f.verifier_id,
           verifier_index: f.verifier_index,
           criterion_text: f.verifier_values?.criteria ?? null,
-          criteria_explanation: f.verifier_values?.criteria_explanation ?? null,
+          criteria_explanation: f.verifier_values?.criteria_explanation ?? rubricFields?.explanation_fallback ?? null,
           grade_rationale: f.verifier_result_values?.grade_rationale ?? null,
           is_primary_objective: f.verifier_values?.is_primary_objective ?? null,
           verifier_updated_at: verifierUpdatedAt.get(f.verifier_id) ?? null,
-          criteria_type: verifierRubricFields.get(f.verifier_id)?.criteria_type ?? null,
-          gate: verifierRubricFields.get(f.verifier_id)?.gate ?? null,
-          weight: verifierRubricFields.get(f.verifier_id)?.weight ?? null,
+          criteria_type: rubricFields?.criteria_type ?? null,
+          gate: rubricFields?.gate ?? null,
+          weight: rubricFields?.weight ?? null,
           ever_passed_in_chain: (info?.count ?? 0) > 0,
           passed_trajectory_ids: info ? Array.from(info.trajectoryIds) : [],
           passed_grading_run_count: info?.count ?? 0,

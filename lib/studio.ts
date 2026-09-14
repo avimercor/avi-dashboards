@@ -62,12 +62,35 @@ export interface JudgeGrade {
   };
 }
 
-// Custom field ids are stable across worlds (confirmed 2026-09-10 on two
-// different domains) — they come from one shared SSOT rubric template, not
-// per-world config. If a future world uses a different template these will
-// just come back null rather than throw.
-export const VERIFIER_CUSTOM_FIELD_TYPE = "field_c1241558f8194176a42ea850ade0ea81"; // "Expert Assessment" | "Objective Compliance"
-export const VERIFIER_CUSTOM_FIELD_GATE = "field_c58fa22291de475781a7e9473f2ef0d7"; // "Gate: Critical Value" | "Gate: Missing Scope" | "Gate: Ethical / Safety Violation" | absent
+// Custom field ids are NOT stable — they're scoped per verifier eval_config,
+// not one shared SSOT rubric template as originally assumed on 2026-09-10.
+// Confirmed 2026-09-14 on a single task (Accounting_Task36_InventoryMemo):
+// 92 verifiers split across 2 different eval_configs, each with its own
+// field-id namespace for the same conceptual "type"/"explanation" fields.
+// Each list below is every id confirmed so far for that concept; extend the
+// list (don't replace it) when a new eval_config's id turns up rather than
+// assuming any one id is universal.
+export const VERIFIER_CUSTOM_FIELD_TYPE_IDS = [
+  "field_c1241558f8194176a42ea850ade0ea81", // "Expert Assessment" | "Objective Compliance"
+  "field_d3fdfbfb98c84c038e4451936ceade33", // e.g. "Process" — different eval_config, same "Criterion Type" concept
+];
+export const VERIFIER_CUSTOM_FIELD_GATE_IDS = [
+  "field_c58fa22291de475781a7e9473f2ef0d7", // "Gate: Critical Value" | "Gate: Missing Scope" | "Gate: Ethical / Safety Violation" | absent
+];
+// Fallback source for criteria_explanation when the grading-run's own
+// verifier_values snapshot doesn't carry one (seen on the same eval_config
+// that uses VERIFIER_CUSTOM_FIELD_TYPE_IDS[1] above) — the live verifier
+// record still has the text, just under a custom field instead of the core
+// verifier_values.criteria_explanation slot.
+export const VERIFIER_CUSTOM_FIELD_EXPLANATION_IDS = ["field_93b64712683b4ead85788a718ea45071"];
+
+export function firstCustomField(cf: Record<string, unknown>, ids: string[]): string | null {
+  for (const id of ids) {
+    const v = cf[id];
+    if (v != null) return v as string;
+  }
+  return null;
+}
 
 export interface Verifier {
   verifier_id: string;

@@ -14,7 +14,7 @@ export default async function HomePage() {
         <div>
           <h1 className="text-2xl font-semibold">Project Atlas — GTG Expert Review</h1>
           <p className="text-sm text-neutral-500">
-            Highest-scoring golden trajectory per task, computed live from Studio. Pick a domain to review failing criteria.
+            Highest-scoring golden trajectory per task, as of each task&apos;s last sync from Studio (not live). Pick a domain to review failing criteria.
           </p>
         </div>
         <SyncButton label="Sync all domains" />

@@ -70,6 +70,14 @@ export function CriterionCard({ taskId, criterion }: { taskId: string; criterion
             </span>
           )}
           {criterion.weight != null && <span className="text-neutral-500">Weight: {criterion.weight}</span>}
+          {criterion.verifier_updated_at == null && (
+            <span
+              title="This criterion's verifier_id no longer exists in the task's current rubric (it was likely edited or replaced since this grading run ran), so type/gate/weight can't be resolved."
+              className="rounded bg-neutral-100 px-1.5 py-0.5 text-neutral-500"
+            >
+              rubric metadata unavailable
+            </span>
+          )}
         </div>
       </div>
 
@@ -151,6 +159,8 @@ export function CriterionCard({ taskId, criterion }: { taskId: string; criterion
           {error && <span className="text-xs text-red-600">{error}</span>}
         </div>
       </div>
+
+      <p className="mt-2 text-[10px] text-neutral-400">verifier_id: {criterion.verifier_id}</p>
     </div>
   );
 }
