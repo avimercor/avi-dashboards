@@ -34,7 +34,7 @@ export default async function DomainPage({ params }: { params: Promise<{ worldId
       </Link>
       <div className="mt-2 mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-semibold">{domain.world_name}</h1>
-        <SyncButton label="Sync all domains" />
+        <SyncButton worldId={domain.world_id} label="Sync this domain" />
       </div>
 
       <table className="w-full table-fixed text-sm">

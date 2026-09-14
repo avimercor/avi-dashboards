@@ -14,6 +14,17 @@ export function SyncButton({ worldId, label }: { worldId?: string; label: string
     try {
       const url = worldId ? `/api/sync?worldId=${encodeURIComponent(worldId)}` : "/api/sync";
       const res = await fetch(url, { method: "POST" });
+      const contentType = res.headers.get("content-type") ?? "";
+      if (!contentType.includes("application/json")) {
+        // A non-JSON body means the platform (not our route) produced this
+        // response — almost always Vercel's own timeout page after hitting
+        // maxDuration (300s), which an unscoped full sync can easily exceed.
+        throw new Error(
+          worldId
+            ? "sync failed with a non-JSON response — check server logs"
+            : "sync timed out (a full all-domain sync can exceed Vercel's 5-minute limit) — try syncing one domain at a time, or run `npm run sync` locally for a full run"
+        );
+      }
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "sync failed");
       setResult(`synced ${data.tasksSynced} tasks — ${JSON.stringify(data.statusCounts)}`);
